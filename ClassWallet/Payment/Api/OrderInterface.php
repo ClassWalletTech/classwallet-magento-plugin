@@ -6,7 +6,7 @@ interface OrderInterface {
 	/**
 	 * GET for api
 	 * @param string $orderId
-	 * @return string
+	 * @return string[]
 	 */
 	
 	public function getOrder($orderId);

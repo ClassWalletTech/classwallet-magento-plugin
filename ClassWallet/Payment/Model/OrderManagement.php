@@ -8,6 +8,9 @@ use ClassWallet\Payment\Logger\Logger;
 class OrderManagement implements OrderInterface
 {
 
+    CONST USENAME_PATH    =   'payment/classwallet/api_username';
+    CONST PASSWORD_PATH   =   'payment/classwallet/api_password';
+
   	/**
    	* @var \Magento\Framework\App\RequestInterface
    	*/
@@ -32,7 +35,8 @@ class OrderManagement implements OrderInterface
         \Magento\Framework\DB\Transaction $transaction,
         \Magento\Sales\Model\Order\Email\Sender\InvoiceSender $invoiceSender,
         \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepository,
-        Logger $logger
+        Logger $logger,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
   	)
   	{
       	$this->request            =   $request;
@@ -44,11 +48,19 @@ class OrderManagement implements OrderInterface
         $this->invoiceSender      =   $invoiceSender;
         $this->transactionRepository = $transactionRepository;
         $this->logger             =   $logger;
+        $this->scopeConfig        =   $scopeConfig;
   	}
 
   	public function getOrder($orderId) {
-      	
+
       try{
+
+          $auth   = $this->authenticate();
+
+          if(!empty($auth)){
+              return $auth;
+          }
+
           $orderData = $this->orderRepository->get($orderId);
 
           $orderItems             =   array();
@@ -63,15 +75,17 @@ class OrderManagement implements OrderInterface
           }
 
           $returnData                =  array(
-                                              'orderId' =>  $orderData->getEntityId(),
-                                              'details' =>  array(
-                                                              'items' => $orderItems,
-                                                              'shipping' => $orderData->getShippingAmount(),
-                                                              'tax' => $orderData->getTaxAmount()
-                                                            )
+                                          array(
+                                                'orderId' =>  $orderData->getEntityId(),
+                                                'details' =>  array(
+                                                                'items' => $orderItems,
+                                                                'shipping' => $orderData->getShippingAmount(),
+                                                                'tax' => $orderData->getTaxAmount()
+                                                              )
+                                          )                
                                         );
              
-          return json_encode($returnData);
+          return $returnData;
       }catch(\Exception $e){
           return $e->getMessage();
       }  
@@ -82,6 +96,13 @@ class OrderManagement implements OrderInterface
         $data         =   $this->request->getContent();
         $postData     =   json_decode($data, true);
         $message      =   '';
+
+        $auth   = $this->authenticate();
+
+        if(!empty($auth)){
+            return $auth;
+        }
+
 
         if(isset($postData['status'])){
             
@@ -174,4 +195,26 @@ class OrderManagement implements OrderInterface
         }
 
     }  
+
+    private function authenticate(){
+        $storeScope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
+        $apiUser    = $this->scopeConfig->getValue(self::USENAME_PATH, $storeScope);
+        $apiPass    = $this->scopeConfig->getValue(self::PASSWORD_PATH, $storeScope);
+
+        $u = '';
+        $p = '';
+
+        if(!empty($_SERVER['HTTP_AUTHORIZATION'])) {
+            preg_match('/^Basic\s+(.*)$/i', $_SERVER['HTTP_AUTHORIZATION'], $user_pass);
+            $str          =   base64_decode($user_pass[1]);
+            list($u, $p ) =   explode(':', $str);
+        } else if(!empty($_SERVER['PHP_AUTH_USER']) && !empty($_SERVER['PHP_AUTH_PW'])) {
+            $u = $_SERVER['PHP_AUTH_USER'];
+            $p = $_SERVER['PHP_AUTH_PW'];
+        }
+
+        if($u != $apiUser || $p != $apiPass) {
+          return "HTTP/1.1 401 Authorization Required";
+        }
+    }
 }

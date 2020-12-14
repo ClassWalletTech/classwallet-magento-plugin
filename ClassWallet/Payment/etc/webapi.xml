@@ -3,14 +3,14 @@
 	<route url="/V1/invoice_process/:orderId" method="GET">
 		<service class="ClassWallet\Payment\Api\OrderInterface" method="getOrder"/>
 		<resources>
-			<resource ref="Magento_Sales::actions_view"/>
+			<resource ref="anonymous"/>
 		</resources>
 	</route>
 
 	<route url="/V1/invoice_process/:orderId" method="PUT">
 		<service class="ClassWallet\Payment\Api\OrderInterface" method="setClasswalletOrder"/>
 		<resources>
-			<resource ref="Magento_Sales::sales_invoice"/>
+			<resource ref="anonymous"/>
 		</resources>
 	</route>	
 </routes>

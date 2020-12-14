@@ -14,6 +14,12 @@
                 <field id="vendor_id" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Vendor ID</label>
                 </field>
+                <field id="api_username" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>API Username</label>
+                </field>
+                <field id="api_password" translate="label" type="password" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>API Password</label>
+                </field>
             </group>
         </section>
     </system>

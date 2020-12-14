@@ -1,79 +1,71 @@
 <?php
-namespace ClassWallet\Payment\Controller\Create;
+namespace ClassWallet\Payment\Controller\Testlogin;
 
 use Magento\Customer\Api\AccountManagementInterface;
 use ClassWallet\Payment\Logger\Logger;
 
-class Account extends \Magento\Framework\App\Action\Action
+class Index extends \Magento\Framework\App\Action\Action
 {
 
-  CONST DEFAULT_PHONE   =   'XXX-XXX-XXXX';
+	CONST DEFAULT_PHONE   =   'XXX-XXX-XXXX';
 
-	/**
-     * @var AccountManagementInterface
-     */
-    protected $customerAccountManagement;
-
+	/** @var \Magento\Framework\View\Result\PageFactory  */
+	protected $resultPageFactory;
 
 	public function __construct(
-		\Magento\Framework\App\Action\Context $context,
-		\Magento\Store\Model\StoreManagerInterface $storeManager,
-    \Magento\Customer\Model\CustomerFactory $customerFactory,
-    \Magento\Customer\Model\SessionFactory $customerSessionFactory,
-    \Magento\Framework\Message\ManagerInterface $messageManager,
-    \Magento\Customer\Api\AddressRepositoryInterface $addressRepository,
-    \Magento\Customer\Api\Data\AddressInterfaceFactory $addressDataFactory,
-    \Magento\Catalog\Model\Session $catalogSession,
-    Logger $logger,
-    \Magento\Customer\Model\AddressFactory $addressFactory,
-    \Magento\Directory\Model\ResourceModel\Region\CollectionFactory $regionColl
-	)
-	{
-      $this->storeManager       	=   $storeManager;
-      $this->customerFactory    	=   $customerFactory;
-      $this->customerSessionFactory    =   $customerSessionFactory;		
-      $this->_messageManager 		= 	$messageManager;
-      $this->addressRepository 	= 	$addressRepository;
-    	$this->addressDataFactory = 	$addressDataFactory;
-      $this->catalogSession     =   $catalogSession;
-      $this->logger             =   $logger;
-      $this->addressFactory     =   $addressFactory;
-      $this->regionColl         =   $regionColl;
-		return parent::__construct($context);
+	    \Magento\Framework\App\Action\Context $context,
+	    \Magento\Framework\View\Result\PageFactory $resultPageFactory,
+	    \Magento\Store\Model\StoreManagerInterface $storeManager,
+	    \Magento\Customer\Model\CustomerFactory $customerFactory,
+	    \Magento\Customer\Model\SessionFactory $customerSessionFactory,
+	    \Magento\Framework\Message\ManagerInterface $messageManager,
+	    \Magento\Customer\Api\AddressRepositoryInterface $addressRepository,
+	    \Magento\Customer\Api\Data\AddressInterfaceFactory $addressDataFactory,
+	    \Magento\Catalog\Model\Session $catalogSession,
+	    Logger $logger,
+	    \Magento\Customer\Model\AddressFactory $addressFactory,
+	    \Magento\Directory\Model\ResourceModel\Region\CollectionFactory $regionColl
+	) {
+	     	$this->resultPageFactory 	= $resultPageFactory;
+	        $this->storeManager       	=   $storeManager;
+	      	$this->customerFactory    	=   $customerFactory;
+	      	$this->customerSessionFactory    =   $customerSessionFactory;		
+	      	$this->_messageManager 		= 	$messageManager;
+	      	$this->addressRepository 	= 	$addressRepository;
+	    	$this->addressDataFactory 	= 	$addressDataFactory;
+	      	$this->catalogSession     	=   $catalogSession;
+	      	$this->logger             	=   $logger;
+	      	$this->addressFactory     	=   $addressFactory;
+	      	$this->regionColl         	=   $regionColl;
+	     	parent::__construct($context);
 	}
-
+	
+	/**
+	* Load the page defined in view/adminhtml/layout/samplenewpage_sampleform_index.xml
+	*
+	* @return \Magento\Framework\View\Result\Page
+	*/
 	public function execute()
-	{
-    	  $formData 	  = 	$this->getRequest()->getPostValue();
-        $isTest       =   $this->getRequest()->getParam('test');
+	{	
+  		$formSData = $this->getRequest()->getPost();
 
-        if($isTest == 1 && empty($formData)){
-          $formData     =   array(
-                            "email" =>  "stephen.kidwell@gmail.com",  
-                            "institution" =>  "ClassWallet School", 
-                            "username" => "Stephen Kidwell",  
-                            "shipping" => array(
-                                            "address"   =>  "19802 Echo Drive",
-                                            "city"    =>  "Strongsville", 
-                                            "state"   =>  "OH", 
-                                            "zip"     =>  "44149"
-                                          )
-                          );  
-        }		  
+  		if(!empty($formSData) && isset($formSData['data'])){
+  			$jsonData 	=	$formSData['data'];
+  			$formData 	=	json_decode($jsonData, true);
 
         try{
 
-          	if(empty($formData) || !is_array($formData)){
-              	throw new \Exception("Please provide valid data.");
-          	}
+            if(empty($formData) || !is_array($formData)){
+                throw new \Exception("Please provide valid data.");
+            }
 
-          	if(!isset($formData['email']) || empty($formData['email'])){
-              	throw new \Exception("Please provide valid customer data.");
-          	}
+            if(!isset($formData['email']) || empty($formData['email'])){
+                throw new \Exception("Please provide valid customer data.");
+            }
           
-	        $customer 	=	$this->ifEmailExist($formData['email']);
+          $customer   = $this->ifEmailExist($formData['email']);
 
-	        if(empty($customer) || empty($customer->getData())){
+          if(empty($customer) || empty($customer->getData())){
 
             $regionData   = $this->getRegionId($formData['shipping']['state']);
 
@@ -83,18 +75,18 @@ class Account extends \Magento\Framework\App\Action\Action
                 $formData['shipping']['country']       =   $regionData->getCountryId();
             }
 
-	        	$response       =   $this->createCustomer($formData);	
+            $response       =   $this->createCustomer($formData); 
 
-	        	if(is_numeric($response)){
-	        		$customerId      	=   $response;
-	        		$customer        	=   $this->customerFactory->create()->load($customerId);
-	              	if(isset($formData['shipping']) && !empty($formData['shipping'])){
-	              		$addressRes 	=	$this->createCustomerAddress($customerId, $formData);	
-	              	}
-	        	}else{
-              		throw new \Exception($response);
-          		}
-	        }
+            if(is_numeric($response)){
+              $customerId       =   $response;
+              $customer         =   $this->customerFactory->create()->load($customerId);
+                  if(isset($formData['shipping']) && !empty($formData['shipping'])){
+                    $addressRes   = $this->createCustomerAddress($customerId, $formData); 
+                  }
+            }else{
+                  throw new \Exception($response);
+              }
+          }
 
           $customerSession =   $this->customerSessionFactory->create();
           $customerSession->setCustomerAsLoggedIn($customer);
@@ -105,15 +97,20 @@ class Account extends \Magento\Framework\App\Action\Action
 
           $this->catalogSession->setIsClasswalletLogin(true);
 
+          $this->_messageManager->addSuccessMessage("Logged in successfully");
+
         }catch(\Exception $e){
             $this->_messageManager->addErrorMessage($e->getMessage());
         }
 
-        $this->_redirect('customer/account');  
+        $this->_redirect('classwallet/testlogin/');
 
+  		}
+
+	    return $this->resultPageFactory->create();
 	}
 
-    protected function createCustomer($customerData){
+	protected function createCustomer($customerData){
       	try{
       		$nameArr 	=	explode(' ', $customerData['username']);
       		$fName 		=	$lName 		=	$customerData['username'];
@@ -197,18 +194,17 @@ class Account extends \Magento\Framework\App\Action\Action
     }
 
     protected function getRegionId($regionCode){
-      try{
-          $region   =   $this->regionColl->create()->addFieldToFilter(['code', 'default_name'],
+      	try{
+          	$region   =   $this->regionColl->create()->addFieldToFilter(['code', 'default_name'],
                         [
                             ['eq' => $regionCode],
                             ['eq' => $regionCode]
                         ])->getFirstItem();
 
 
-          return $region;
-      }catch(\Exception $e){
+          	return $region;
+      	}catch(\Exception $e){
           
-      }    
-  }
-
+      	}    
+ 	 }	
 }
