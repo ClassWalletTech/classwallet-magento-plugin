@@ -36,7 +36,8 @@ class OrderManagement implements OrderInterface
         \Magento\Sales\Model\Order\Email\Sender\InvoiceSender $invoiceSender,
         \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepository,
         Logger $logger,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \Magento\Framework\Serialize\Serializer\Json $json
   	)
   	{
       	$this->request            =   $request;
@@ -49,16 +50,19 @@ class OrderManagement implements OrderInterface
         $this->transactionRepository = $transactionRepository;
         $this->logger             =   $logger;
         $this->scopeConfig        =   $scopeConfig;
+        $this->json               =   $json;
   	}
 
   	public function getOrder($orderId) {
 
+      $returnData             =   array();
+      
       try{
 
           $auth   = $this->authenticate();
 
-          if(!empty($auth)){
-              return $auth;
+          if(!$auth){
+              throw new \Exception("HTTP/1.1 401 Authorization Required");
           }
 
           $orderData = $this->orderRepository->get($orderId);
@@ -75,51 +79,57 @@ class OrderManagement implements OrderInterface
           }
 
           $returnData                =  array(
-                                          array(
                                                 'orderId' =>  $orderData->getEntityId(),
                                                 'details' =>  array(
                                                                 'items' => $orderItems,
                                                                 'shipping' => $orderData->getShippingAmount(),
                                                                 'tax' => $orderData->getTaxAmount()
                                                               )
-                                          )                
-                                        );
-             
-          return $returnData;
+                                          );                       
       }catch(\Exception $e){
-          return $e->getMessage();
+        $returnData['status']   =   'error';
+        $returnData['message']  =   $e->getMessage();
       }  
+
+      $jsonResonse      =   $this->json->serialize($returnData);
+      echo($jsonResonse);
+      exit;
+
   	}
 
     public function setClasswalletOrder($orderId) {
         
-        $data         =   $this->request->getContent();
-        $postData     =   json_decode($data, true);
-        $message      =   '';
+        try{
 
-        $auth   = $this->authenticate();
+          $data         =   $this->request->getContent();
+          $postData     =   json_decode($data, true);
+          $message      =   '';
 
-        if(!empty($auth)){
-            return $auth;
-        }
+          $auth   = $this->authenticate();
 
+          if(!$auth){
+              throw new \Exception("HTTP/1.1 401 Authorization Required");
+          }
+          
+          $purchaseOrderId  =   $postData['PurchaseOrderId'];
+          $invoiceResult    =   $this->markOrderComplete($orderId, $purchaseOrderId);
 
-        if(isset($postData['status'])){
-            
-            $status       =   $postData['status'];  
-            
-            if($status != 'failed'){
-                $purchaseOrderId  =   $postData['PurchaseOrderId'];
-                $invoiceResult    =   $this->markOrderComplete($orderId, $purchaseOrderId);
-                return $invoiceResult;
-            }else{
-                if(isset($postData['message'])){
-                  $message      =   $postData['message'];    
-                }                
-                return "Payment failed due to error {$message}";
-            }
+          if($invoiceResult['status']){
+              $returnData   =   array('status' =>  'complete');    
+          }else{
+              $returnData   =   array('status' =>  'failed', 'message' => $invoiceResult['message']);    
+          }
 
-        }        
+        }catch(\Exception $e){
+          $returnData             =   array();
+          $returnData['status']   =   'failed';
+          $returnData['message']  =   $e->getMessage();
+
+        }          
+
+        $jsonResonse      =   $this->json->serialize($returnData);
+        echo($jsonResonse);
+        exit; 
 
     }  
 
@@ -188,10 +198,10 @@ class OrderManagement implements OrderInterface
             $orderData->addStatusToHistory($orderData->getStatus(), 'Order completed successfully');
             $orderData->save();
 
-            return "Order Completed";
+            return array("status" => true);
 
         }catch(\Exception $e){
-            return $e->getMessage();
+            return array("status" => false, "message" => $e->getMessage());
         }
 
     }  
@@ -214,7 +224,9 @@ class OrderManagement implements OrderInterface
         }
 
         if($u != $apiUser || $p != $apiPass) {
-          return "HTTP/1.1 401 Authorization Required";
+          return false;
+        }else{
+          return true;
         }
     }
 }
