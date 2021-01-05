@@ -52,18 +52,18 @@ class Account extends \Magento\Framework\App\Action\Action
         $formSData = $this->getRequest()->getPostValue(); 
         $inputData = file_get_contents('php://input');
 
+		$this->logger->info("Got POST " . print_r($inputData, true));
         try{
-
+			$this->logger->info('here');
             if(!empty($formSData) && isset($formSData['data'])){
-              $jsonData   = $formSData['data'];
-              $formData   = json_decode($jsonData, true);
+              	$jsonData   = $formSData['data'];
+              	$formData   = json_decode($jsonData, true);
             }elseif(!empty($formSData) && isset($formSData['request'])){
-              $jsonData   = $formSData['request'];
-              $formData   = json_decode($jsonData, true);
+              	$jsonData   = $formSData['request'];
+              	$formData   = json_decode($jsonData, true);
             }else{
                 throw new \Exception("Please provide valid data.");
             }
-
             if(empty($formData) || !is_array($formData)){
                 throw new \Exception("Please provide valid data.");
             }
@@ -71,42 +71,46 @@ class Account extends \Magento\Framework\App\Action\Action
             if(!isset($formData['email']) || empty($formData['email'])){
                 throw new \Exception("Please provide valid customer data.");
             }
-          
-          $customer   = $this->ifEmailExist($formData['email']);
+         	$this->logger->info('Checking customer exisitence'); 
+          	$customer   = $this->ifEmailExist($formData['email']);	
 
-          if(empty($customer) || empty($customer->getData())){
+          	if(empty($customer) || empty($customer->getData())){
+				$this->logger->info('Creating customer with email ' . $formData['email']);
+            	$regionData   = $this->getRegionId($formData['shipping']['state']);
 
-            $regionData   = $this->getRegionId($formData['shipping']['state']);
+				if(!empty($regionData) && $regionData->getRegionId()){
+					$formData['shipping']['state_id']      =   $regionData->getRegionId();
+					$formData['shipping']['state']         =   $regionData->getCode();
+					$formData['shipping']['country']       =   $regionData->getCountryId();
+				}
 
-            if(!empty($regionData) && $regionData->getRegionId()){
-                $formData['shipping']['state_id']      =   $regionData->getRegionId();
-                $formData['shipping']['state']         =   $regionData->getCode();
-                $formData['shipping']['country']       =   $regionData->getCountryId();
-            }
+				$response       =   $this->createCustomer($formData); 
 
-            $response       =   $this->createCustomer($formData); 
-
-            if(is_numeric($response)){
-              $customerId       =   $response;
-              $customer         =   $this->customerFactory->create()->load($customerId);
-                  if(isset($formData['shipping']) && !empty($formData['shipping'])){
-                    $addressRes   = $this->createCustomerAddress($customerId, $formData); 
-                  }
-            }else{
-                  throw new \Exception($response);
-              }
-          }
+				if(is_numeric($response)){
+					$customerId       =   $response;
+				  	$customer         =   $this->customerFactory->create()->load($customerId);
+					if(isset($formData['shipping']) && !empty($formData['shipping'])){
+						$addressRes   = $this->createCustomerAddress($customerId, $formData); 
+					}
+				}else{
+					throw new \Exception($response);
+			 	}
+          } else {
+		      $this->logger->info('Customer exists with email '. $formData['email']);
+		  }
 
           $customerSession =   $this->customerSessionFactory->create();
           $customerSession->setCustomerAsLoggedIn($customer);
 
           if(!$customerSession->isLoggedIn()) {
+			  $this->logger->info('Could not login customer. Throwing exception');
               throw new \Exception("Unable to login customer");
           }
 
           $this->catalogSession->setIsClasswalletLogin(true);
 
         }catch(\Exception $e){
+			$this->logger->info('Caught exception ' . $e->getMessage());
             $this->logger->info(var_export($inputData, true));
             $this->logger->info(var_export($formSData, true));
             $this->_messageManager->addErrorMessage($e->getMessage());
