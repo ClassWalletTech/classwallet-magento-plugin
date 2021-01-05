@@ -5,6 +5,7 @@ use \ClassWallet\Payment\Api\OrderInterface;
 use Magento\Sales\Model\Order;
 use ClassWallet\Payment\Logger\Logger;
 
+
 class OrderManagement implements OrderInterface
 {
 
@@ -54,7 +55,7 @@ class OrderManagement implements OrderInterface
   	}
 
   	public function getOrder($orderId) {
-
+		$this->logger->info("Getting data for order id $orderId");
       $returnData             =   array();
       
       try{
@@ -78,18 +79,20 @@ class OrderManagement implements OrderInterface
                                   );
           }
 
-          $returnData                =  array(
-                                                'orderId' =>  $orderData->getEntityId(),
-                                                'details' =>  array(
-                                                                'items' => $orderItems,
-                                                                'shipping' => $orderData->getShippingAmount(),
-                                                                'tax' => $orderData->getTaxAmount()
-                                                              )
-                                          );                       
+          $returnData = array(
+                       'orderId' =>  $orderData->getEntityId(),
+                       'details' =>  array(
+                       		'items' => $orderItems,
+                       		'shipping' => $orderData->getShippingAmount(),
+                       		'tax' => $orderData->getTaxAmount()
+                       )
+           );                       
       }catch(\Exception $e){
         $returnData['status']   =   'error';
         $returnData['message']  =   $e->getMessage();
-      }  
+      } 
+
+	  $this->logger->info('Order data for ClassWallet ' . print_r($returnData, true));
 
       $jsonResonse      =   $this->json->serialize($returnData);
       echo($jsonResonse);
@@ -98,13 +101,14 @@ class OrderManagement implements OrderInterface
   	}
 
     public function setClasswalletOrder($orderId) {
-        
+		$this->logger->info('Got PUT from ClassWallet for order id ' . $orderId);
+
         try{
 
           $data         =   $this->request->getContent();
           $postData     =   json_decode($data, true);
           $message      =   '';
-
+		  $this->logger->info('PUT data ' . print_r($data, true));		  
           $auth   = $this->authenticate();
 
           if(!$auth){
@@ -112,7 +116,12 @@ class OrderManagement implements OrderInterface
           }
           
           $purchaseOrderId  =   $postData['PurchaseOrderId'];
-          $invoiceResult    =   $this->markOrderComplete($orderId, $purchaseOrderId);
+
+		  if($postData['status'] == 'complete') {
+          	  $invoiceResult    =   $this->markOrderComplete($orderId, $purchaseOrderId);
+		  } else {
+			  $invoiceResult = $this->markOrderCanceled($orderId);
+		  }
 
           if($invoiceResult['status']){
               $returnData   =   array('status' =>  'complete');    
@@ -131,9 +140,23 @@ class OrderManagement implements OrderInterface
         echo($jsonResonse);
         exit; 
 
-    }  
+    } 
+	
+	protected function markOrderCanceled($orderId) {
+		try {
+			$this->logger->info("Cancelling order id $orderId");
+			$orderData = $this->orderRepository->get($orderId);
+			$orderData->setState(\Magento\Sales\Model\Order::STATE_CANCELED);
+            $orderData->setStatus(\Magento\Sales\Model\Order::STATE_CANCELED);
+			$orderData->save();
+		} catch(\Exception $e){
+            return array("status" => false, "message" => $e->getMessage());
+        }
+        return array("status" => true);
+	} 
 
     protected function markOrderComplete($orderId, $purchaseOrderId){
+		$this->logger->info("Finalizing order id $orderId");
         $orderData = $this->orderRepository->get($orderId);
 
         try{
@@ -159,7 +182,7 @@ class OrderManagement implements OrderInterface
             if($transaction) {
               $transaction->setTxnId($purchaseOrderId);
               $transaction->setAdditionalInformation(  
-                "ClassWallet Transaction Id",$purchaseOrderId
+                "ClassWallet Order Id",$purchaseOrderId
               );
               $transaction->setAdditionalInformation(  
                 "status","successful"
@@ -175,7 +198,7 @@ class OrderManagement implements OrderInterface
             );
             $payment->setParentTransactionId(null); 
             $additionalInfo   = array(
-                                   "method_title" => "Class Wallet",
+                                   "method_title" => "ClassWallet",
                                    "purchase_order_id" => $purchaseOrderId
                                 );
 
@@ -195,9 +218,9 @@ class OrderManagement implements OrderInterface
 
             $orderData->setState(\Magento\Sales\Model\Order::STATE_COMPLETE);
             $orderData->setStatus(\Magento\Sales\Model\Order::STATE_COMPLETE);
-            $orderData->addStatusToHistory($orderData->getStatus(), 'Order completed successfully');
+            $orderData->addStatusToHistory($orderData->getStatus(), 'Order completed successfully, ClassWallet Order Id ' . $purchaseOrderId);
             $orderData->save();
-
+			$this->logger->info('Completed order, purchase order id ' . $purchaseOrderId);
             return array("status" => true);
 
         }catch(\Exception $e){
