@@ -116,7 +116,8 @@ class Account extends \Magento\Framework\App\Action\Action
             $this->_messageManager->addErrorMessage($e->getMessage());
         }
 
-        $this->_redirect('customer/account');  
+        //$this->_redirect('customer/account');
+        $this->_redirect('');
 
   }
 

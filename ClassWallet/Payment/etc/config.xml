@@ -7,7 +7,7 @@
                 <active>1</active>
                 <model>ClassWallet\Payment\Model\Payment\Classwallet</model>
                 <order_status>pending</order_status>
-                <title>Classwallet</title>
+                <title>ClassWallet</title>
                 <vendor_id></vendor_id>
             </classwallet>
         </payment>
