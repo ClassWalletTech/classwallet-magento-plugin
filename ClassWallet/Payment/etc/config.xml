@@ -5,6 +5,7 @@
         <payment>
             <classwallet>
                 <active>1</active>
+                <enable_cart_button>0</enable_cart_button>
                 <model>ClassWallet\Payment\Model\Payment\Classwallet</model>
                 <order_status>pending</order_status>
                 <title>Classwallet</title>
