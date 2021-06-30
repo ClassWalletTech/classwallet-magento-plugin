@@ -14,8 +14,9 @@ class Button extends  \Magento\Framework\View\Element\Template
    /**
    * Button config path
    */
-   const BUTTON_CONFIG_PATH = 'payment/classwallet/enable_cart_button';
-   const METHOD_CONFIG_PATH = 'payment/classwallet/active';
+   const BUTTON_CONFIG_PATH       = 'payment/classwallet/enable_cart_button';
+   const DEFAULT_SHIPPING_METHOD  = 'payment/classwallet/default_shipping_method';
+   const METHOD_CONFIG_PATH       = 'payment/classwallet/active';
 
 	public function __construct(
 	 	Context $context,
@@ -37,5 +38,11 @@ class Button extends  \Magento\Framework\View\Element\Template
     	if($cartBtnEnabled && $methodEnabled && $this->_customerSession->isLoggedIn() && $isClasswalletSession){
     		return true;
     	}
+    }
+
+    public function defaultShippingMethod() {
+      $storeScope             =   \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
+      $defaultShippingMtd     =   $this->scopeConfig->getValue(self::DEFAULT_SHIPPING_METHOD, $storeScope);
+      return $defaultShippingMtd;
     }
 }

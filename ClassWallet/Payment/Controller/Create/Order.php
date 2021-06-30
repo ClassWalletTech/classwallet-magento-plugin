@@ -32,6 +32,7 @@ class Order extends \Magento\Framework\App\Action\Action
 
             $quoteData        =   $this->checkoutSession->getQuote();
             $shippingAddress  =   $quoteData->getShippingAddress();
+            $defaultShipMtd   =   $this->buttonBlock->defaultShippingMethod();
 
             /* SET SHIPPING ADDRESS */
             
@@ -63,7 +64,7 @@ class Order extends \Magento\Framework\App\Action\Action
             // Collect Rates and Set Shipping & Payment Method
             $shippingAddress->setCollectShippingRates(true)
                             ->collectShippingRates()
-                            ->setShippingMethod('freeshipping_freeshipping'); //shipping method
+                            ->setShippingMethod($defaultShipMtd); //shipping method
             $quoteData->setPaymentMethod('classwallet'); //payment method
             $quoteData->save(); //Now Save quote and your quote is ready
 
