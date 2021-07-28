@@ -73,8 +73,8 @@ class OrderManagement implements OrderInterface
               $orderItems[]   =   array(
                                       'itemId'        => $item->getItemId(),
                                       'description'   => $item->getName(),  
-                                      'quantity'      => $item->getQtyOrdered(),  
-                                      'price'         => $item->getPrice()
+                                      'quantity'      => (int)$item->getQtyOrdered(),  
+                                      'price'         => number_format($item->getPrice(), 2, '.', '')
                                   );
           }
 
@@ -82,8 +82,8 @@ class OrderManagement implements OrderInterface
                                                 'orderId' =>  $orderData->getEntityId(),
                                                 'details' =>  array(
                                                                 'items' => $orderItems,
-                                                                'shipping' => $orderData->getShippingAmount(),
-                                                                'tax' => $orderData->getTaxAmount()
+                                                                'shipping' => number_format($orderData->getShippingAmount(), 2, '.', ''),
+                                                                'tax' => number_format($orderData->getTaxAmount(), 2, '.', '')
                                                               )
                                           );                       
       }catch(\Exception $e){
