@@ -38,7 +38,7 @@ class Main extends  \Magento\Framework\View\Element\Template
 	protected function _prepareLayout()
 	{
 		$orderId 	= 	$this->checkoutSession->getLastOrderId();
-		$this->logger->info('Creating Order for orderId $orderId');
+		$this->logger->info("Creating Order for orderId $orderId");
 		$order 		= 	$this->orderFactory->create()->load($orderId);
 		if ($order){
 
@@ -71,7 +71,7 @@ class Main extends  \Magento\Framework\View\Element\Template
 		$storeScope 	= 	\Magento\Store\Model\ScopeInterface::SCOPE_STORE;
 		$vendorId 		= 	$this->config->getValue("payment/classwallet/vendor_id",$storeScope);
 		$endPointCW 	= 	'https://app.classwallet.com/payby-checkout/';
-		$enUrl 			=	"callback=$url/rest/default/V1/invoice_process/$orderId&vendorId={$vendorId}";
+		$enUrl 			=	"callback=" . urlencode("$url/rest/default/V1/invoice_process/$orderId") . "&vendorId={$vendorId}";
 		$action 		=	"$endPointCW?{$enUrl}";
 		return $action;
 	}

@@ -54,14 +54,16 @@ class OrderManagement implements OrderInterface
   	}
 
   	public function getOrder($orderId) {
+		$this->logger->info("Getting info for order id $orderId");
 
       $returnData             =   array();
-      
+        
       try{
-
+		  $this->logger->info('Authenticating...');
           $auth   = $this->authenticate();
 
           if(!$auth){
+			  $this->logger->info('Authentication failed');
               throw new \Exception("HTTP/1.1 401 Authorization Required");
           }
 
@@ -89,10 +91,12 @@ class OrderManagement implements OrderInterface
       }catch(\Exception $e){
         $returnData['status']   =   'error';
         $returnData['message']  =   $e->getMessage();
+		$this->logger->info('Caught exception ' . $e->getMessage());
       }  
 
-      $jsonResonse      =   $this->json->serialize($returnData);
-      echo($jsonResonse);
+      $jsonResponse      =   $this->json->serialize($returnData);
+	  $this->logger->info('Order data ' . $jsonResponse);
+      echo($jsonResponse);
       exit;
 
   	}
