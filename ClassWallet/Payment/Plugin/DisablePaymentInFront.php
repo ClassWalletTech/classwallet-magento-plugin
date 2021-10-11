@@ -35,19 +35,18 @@ class DisablePaymentInFront
     */  
     public function afterIsAvailable(\Magento\Payment\Model\Method\AbstractMethod $subject, $result)  
     {  
-      $area_code = $this->appState->getAreaCode(); 
-      if ($area_code != \Magento\Backend\App\Area\FrontNameResolver::AREA_CODE) {  
-        $methodCode   =   $subject->getCode();
-        $isClasswalletSession   =   $this->catalogSession->getIsClasswalletLogin();
-        if ($methodCode != self::CLASSWALLET && $isClasswalletSession) {  
-          return false;  
-        }
+      	$area_code = $this->appState->getAreaCode(); 
+      	if ($area_code != \Magento\Backend\App\Area\FrontNameResolver::AREA_CODE) {  
+        	$methodCode   =   $subject->getCode();
+        	$isClasswalletSession   =   $this->catalogSession->getIsClasswalletLogin();
+        	if ($methodCode != self::CLASSWALLET && $isClasswalletSession) {  
+          		return false;  
+        	}
 
-        if ($methodCode == self::CLASSWALLET && !$isClasswalletSession) {  
-          return false;
-        }
-
-      }  
-      return $result;  
+        	if ($methodCode == self::CLASSWALLET && !$isClasswalletSession) {  
+          		return false;
+        	}
+      	}  
+      	return $result;  
     }   
 }  
