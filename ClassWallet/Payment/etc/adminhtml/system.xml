@@ -21,6 +21,16 @@
                     <validate>required-entry no-whitespace</validate>
                     <comment>This will have list of all enabled shipping methods.</comment>
                 </field>
+
+
+				<field id="default_customer_group" translate="label" type="select" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Default Customer Group</label>
+                    <source_model>ClassWallet\Payment\Model\Config\Source\CustomerGroup</source_model>
+                    <validate>required-entry no-whitespace</validate>
+                    <comment>This will have list of all enabled customer groups.</comment>
+                </field>
+
+
                 <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Title</label>
                 </field>

@@ -91,7 +91,8 @@ class Account extends \Magento\Framework\App\Action\Action
     \Magento\Customer\Model\AddressFactory $addressFactory,
     \Magento\Directory\Model\ResourceModel\Region\CollectionFactory $regionColl,
     \Magento\Framework\Data\Form\FormKey $formKey,
-    \Magento\Framework\App\Request\Http $request
+    \Magento\Framework\App\Request\Http $request,
+	\Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
   )
   {
       $this->storeManager         =   $storeManager;
@@ -107,6 +108,7 @@ class Account extends \Magento\Framework\App\Action\Action
       $this->formKey            =   $formKey;
       $this->request            =   $request;
       $this->request->setParam('form_key', $this->formKey->getFormKey());
+	  $this->scopeConfig = $scopeConfig;
       return parent::__construct($context);
   }
 
@@ -159,6 +161,13 @@ class Account extends \Magento\Framework\App\Action\Action
                   throw new \Exception($response);
               }
           }
+
+		  // Set customer group
+      	  $storeScope             =   \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
+      	  $defaultCustomerGroup     =   $this->scopeConfig->getValue('payment/classwallet/default_customer_group', $storeScope);
+		  $this->logger->info(var_export($defaultCustomerGroup));
+		  $customer->setGroupId($defaultCustomerGroup);
+		  $customer->save();
 
           $customerSession =   $this->customerSessionFactory->create();
           $customerSession->setCustomerAsLoggedIn($customer);
