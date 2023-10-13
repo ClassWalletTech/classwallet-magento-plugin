@@ -165,7 +165,7 @@ class Account extends \Magento\Framework\App\Action\Action
 		  // Set customer group
       	  $storeScope             =   \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
       	  $defaultCustomerGroup     =   $this->scopeConfig->getValue('payment/classwallet/default_customer_group', $storeScope);
-		  $this->logger->info(var_export($defaultCustomerGroup));
+		  $this->logger->info(var_export($defaultCustomerGroup, true));
 		  $customer->setGroupId($defaultCustomerGroup);
 		  $customer->save();
 
