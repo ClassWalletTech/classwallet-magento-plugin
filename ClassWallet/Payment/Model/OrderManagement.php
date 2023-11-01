@@ -197,8 +197,8 @@ class OrderManagement implements OrderInterface
             $transactionSave->save();
             $invoice->save();
 
-            $orderData->setState(\Magento\Sales\Model\Order::STATE_COMPLETE);
-            $orderData->setStatus(\Magento\Sales\Model\Order::STATE_COMPLETE);
+            $orderData->setState(\Magento\Sales\Model\Order::STATE_PROCESSING);
+            $orderData->setStatus(\Magento\Sales\Model\Order::STATE_PROCESSING);
             $orderData->addStatusToHistory($orderData->getStatus(), 'Order completed successfully');
             $orderData->save();
 
