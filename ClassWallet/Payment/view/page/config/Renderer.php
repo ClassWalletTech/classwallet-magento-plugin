@@ -9,6 +9,8 @@ use Magento\Framework\View\Page\Config\Metadata\MsApplicationTileImage;
 
 class Renderer extends \Magento\Framework\View\Page\Config\Renderer
 {
+	protected $catalogSession
+
 	public function __construct(
 		Config $pageConfig,
         \Magento\Framework\View\Asset\MergeService $assetMergeService,

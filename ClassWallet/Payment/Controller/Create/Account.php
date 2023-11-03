@@ -76,7 +76,19 @@ class Account extends \Magento\Framework\App\Action\Action
      * @var AccountManagementInterface
      */
     protected $customerAccountManagement;
-
+    protected $storeManager;
+    protected $customerFactory;
+    protected $customerSessionFactory;
+    protected $_messageManager;
+    protected $addressRepository;
+    protected $addressDataFactory;
+    protected $catalogSession;
+    protected $logger;
+    protected $addressFactory;
+    protected $regionColl;
+    protected $formKey;
+    protected $request;
+    protected $scopeConfig;
 
   public function __construct(
     \Magento\Framework\App\Action\Context $context,
@@ -108,7 +120,7 @@ class Account extends \Magento\Framework\App\Action\Action
       $this->formKey            =   $formKey;
       $this->request            =   $request;
       $this->request->setParam('form_key', $this->formKey->getFormKey());
-	  $this->scopeConfig = $scopeConfig;
+      $this->scopeConfig = $scopeConfig;
       return parent::__construct($context);
   }
 
@@ -167,7 +179,6 @@ class Account extends \Magento\Framework\App\Action\Action
       	  $defaultCustomerGroup     =   $this->scopeConfig->getValue('payment/classwallet/default_customer_group', $storeScope);
 		  $this->logger->info(var_export($defaultCustomerGroup, true));
 		  $customer->setGroupId($defaultCustomerGroup);
-		  $customer->save();
 
           $customerSession =   $this->customerSessionFactory->create();
           $customerSession->setCustomerAsLoggedIn($customer);
@@ -176,7 +187,7 @@ class Account extends \Magento\Framework\App\Action\Action
               throw new \Exception("Unable to login customer");
           }
 
-          $this->catalogSession->setIsClasswalletLogin(true);
+          $this->catalogSession->setIsClasswalletLogin(true, true);
 
         }catch(\Exception $e){
             $this->logger->info(var_export($inputData, true));

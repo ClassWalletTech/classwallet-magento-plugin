@@ -3,7 +3,12 @@ namespace ClassWallet\Payment\Controller\Create;
 
 class Order extends \Magento\Framework\App\Action\Action
 {
-
+  protected $_storeManager;
+  protected $quoteManagement;
+  protected $checkoutSession;
+  protected $addressFactory;
+  protected $customerSession;
+  protected $buttonBlock;
   public function __construct(
     \Magento\Framework\App\Action\Context $context,
     \Magento\Store\Model\StoreManagerInterface $storeManager,

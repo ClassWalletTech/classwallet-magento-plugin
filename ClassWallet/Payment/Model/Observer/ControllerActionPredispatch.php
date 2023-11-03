@@ -72,6 +72,9 @@ class ControllerActionPredispatch implements ObserverInterface {
 	);
 	protected $checkoutSession;
 	protected $orderFactory;
+	protected $catalogSession;
+	protected $regionColl;
+	protected $urlBuilder;
 	public function __construct (
 		Session $checkoutSession,
 		OrderFactory $orderFactory,

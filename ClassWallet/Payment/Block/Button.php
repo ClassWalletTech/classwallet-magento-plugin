@@ -17,7 +17,9 @@ class Button extends  \Magento\Framework\View\Element\Template
    const BUTTON_CONFIG_PATH       = 'payment/classwallet/enable_cart_button';
    const DEFAULT_SHIPPING_METHOD  = 'payment/classwallet/default_shipping_method';
    const METHOD_CONFIG_PATH       = 'payment/classwallet/active';
-
+   	protected $_customerSession;
+        protected $scopeConfig;
+   	protected $catalogSession;
 	public function __construct(
 	 	Context $context,
 	 	\Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,

@@ -20,8 +20,15 @@ class OrderManagement implements OrderInterface
      * @var \Magento\Sales\Model\Service\InvoiceService
      */
     protected $_invoiceService; 
-
-    private $logger;   
+    protected $storeManager;
+    protected $orderRepository;
+    protected $orderFactory;
+    protected $_transaction;
+    protected $invoiceSender;
+    protected $transactionRepository;
+    protected $logger;
+    protected $scopeConfig;
+    protected $json;
 
   	/**
    	* @param \Magento\Framework\App\RequestInterface $request

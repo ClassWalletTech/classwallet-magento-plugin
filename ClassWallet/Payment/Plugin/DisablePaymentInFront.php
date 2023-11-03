@@ -16,7 +16,10 @@ class DisablePaymentInFront
    private $scopeConfig;  
    /**  
     * @param \Magento\Framework\App\State $appState  
-    */  
+    */
+
+   private $catalogSession;
+
    public function __construct(  
      \Magento\Framework\App\State $appState,  
      \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,

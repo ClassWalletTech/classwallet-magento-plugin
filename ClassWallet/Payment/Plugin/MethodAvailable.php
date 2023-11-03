@@ -4,7 +4,9 @@ namespace ClassWallet\Payment\Plugin;
 
 class MethodAvailable
 {
-    const CLASSWALLET = 'classwallet';
+	const CLASSWALLET = 'classwallet';
+	protected $catalogSession;
+	protected $appState;
  	public function __construct(
 		\Magento\Catalog\Model\Session $catalogSession,
      	\Magento\Framework\App\State $appState

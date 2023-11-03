@@ -13,6 +13,7 @@ class CustomerGroup implements \Magento\Framework\Data\OptionSourceInterface
 		CustomerGroupCollection $customerGroup
 	) {
 		$this->customerGroup = $customerGroup;
+		//parent::__construct($context);		
 	}
 
 	public function toOptionArray()
