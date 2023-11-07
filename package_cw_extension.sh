@@ -1,2 +1,5 @@
 #!/usr/bin/env bash
-zip -r Magento_ClassWallet-beta2.3.zip ClassWallet
+
+# Check for syntax errors
+find . -type f -name *.php | xargs -n 1 php -l && \
+zip -r Magento_ClassWallet-beta2.11.zip ClassWallet

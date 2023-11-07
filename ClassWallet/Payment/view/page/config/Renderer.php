@@ -9,7 +9,7 @@ use Magento\Framework\View\Page\Config\Metadata\MsApplicationTileImage;
 
 class Renderer extends \Magento\Framework\View\Page\Config\Renderer
 {
-	protected $catalogSession
+	protected $catalogSession;
 
 	public function __construct(
 		Config $pageConfig,
