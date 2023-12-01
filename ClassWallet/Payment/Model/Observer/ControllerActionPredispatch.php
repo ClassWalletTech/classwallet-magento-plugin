@@ -121,14 +121,16 @@ class ControllerActionPredispatch implements ObserverInterface {
 		$full_state = ucfirst(strtolower($this->us_state_table[$shipping_data['state']]));
 
 		// Shipping
-		$order->getShippingAddress()->setFirstname($first_name);
-		$order->getShippingAddress()->setLastname($last_name);
-		$order->getShippingAddress()->setStreet($shipping_data['address']);
-		$order->getShippingAddress()->setCity($shipping_data['city']);
-		$order->getShippingAddress()->setRegion($full_state);
-		//$order->getShippingAddress()->setRegionId($this->getRegionId($full_state));
-		$order->getShippingAddress()->setCountryId('US');
-		$order->getShippingAddress()->setTelephone('XXX-XXX-XXXX');
+		if($order->getShippingAddress()) {
+			$order->getShippingAddress()->setFirstname($first_name);
+			$order->getShippingAddress()->setLastname($last_name);
+			$order->getShippingAddress()->setStreet($shipping_data['address']);
+			$order->getShippingAddress()->setCity($shipping_data['city']);
+			$order->getShippingAddress()->setRegion($full_state);
+			//$order->getShippingAddress()->setRegionId($this->getRegionId($full_state));
+			$order->getShippingAddress()->setCountryId('US');
+			$order->getShippingAddress()->setTelephone('XXX-XXX-XXXX');
+		}
 
 		// Billing
 		$order->getBillingAddress()->setFirstname('Class');
