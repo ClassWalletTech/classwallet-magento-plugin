@@ -1,0 +1,1 @@
+# classwallet-magento-plugin
