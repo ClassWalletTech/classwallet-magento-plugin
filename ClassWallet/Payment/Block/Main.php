@@ -69,9 +69,10 @@ class Main extends  \Magento\Framework\View\Element\Template
 		$orderId 		= 	$this->checkoutSession->getLastOrderId();
 		$url 			=	$this->urlBuilder->getBaseUrl();
 		$storeScope 	= 	\Magento\Store\Model\ScopeInterface::SCOPE_STORE;
-		$vendorId 		= 	$this->config->getValue("payment/classwallet/vendor_id",$storeScope);
+		$vendorId 		= 	$this->config->getValue("payment/classwallet/vendor_id", $storeScope);
+		$storeCode 		= 	$this->config->getValue("payment/classwallet/store_code", $storeScope);
 		$endPointCW 	= 	'https://app.classwallet.com/payby-checkout/';
-		$enUrl 			=	"callback=" . urlencode("$url/rest/default/V1/invoice_process/$orderId") . "&vendorId={$vendorId}";
+		$enUrl 			=	"callback=" . urlencode("{$url}rest/$storeCode/V1/invoice_process/$orderId") . "&vendorId={$vendorId}";
 		$action 		=	"$endPointCW?{$enUrl}";
 		return $action;
 	}

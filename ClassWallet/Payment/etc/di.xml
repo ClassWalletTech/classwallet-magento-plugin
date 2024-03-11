@@ -1,6 +1,7 @@
 <?xml version="1.0" ?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-	<preference for="ClassWallet\Payment\Api\OrderInterface" type="ClassWallet\Payment\Model\OrderManagement"/>
+	<preference for="ClassWallet\Payment\Api\OrderInterface" type="ClassWallet\Payment\Model\OrderManagement" />
+	<preference for="Magento\Sales\Model\ResourceModel\Order\Handler\State" type="ClassWallet\Payment\Model\OrderState" />
 	<!-- Plugin used for disable offline payment method in frontend -->
     <type name="Magento\Payment\Model\MethodList">
         <plugin sortOrder="5" name="disableCashondelivery" type="ClassWallet\Payment\Plugin\MethodAvailable" disabled="false" />

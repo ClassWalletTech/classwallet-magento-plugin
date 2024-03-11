@@ -3,16 +3,13 @@
     <system>
         <section id="payment">
             <group id="classwallet" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Classwallet Payment Gateway</label>
+                <label>ClassWallet Payment Gateway</label>
                 <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                </field>
-                <field id="enable_cart_button" translate="label" type="select" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Enable Shopping Cart Button</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                </field>
-                <field id="default_shipping_method" translate="label" type="select" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="0">
+	    	</field>
+
+		<field id="default_shipping_method" translate="label" type="select" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Default Shipping Method</label>
                     <source_model>ClassWallet\Payment\Model\Config\Source\ShippingMethod</source_model>
                     <depends>
@@ -20,10 +17,17 @@
                     </depends>
                     <validate>required-entry no-whitespace</validate>
                     <comment>This will have list of all enabled shipping methods.</comment>
-                </field>
+	    	</field>
+
+		<field id="store_code" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+			<label>Store Code</label>
+			<source_model>ClassWallet\Payment\Model\Config\Source\StoreCode</source_model>
+			<validate>required-entry</validate>
+			<comment>Callback store code.</comment>
+		</field>
 
 
-				<field id="default_customer_group" translate="label" type="select" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="0">
+		<field id="default_customer_group" translate="label" type="select" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Default Customer Group</label>
                     <source_model>ClassWallet\Payment\Model\Config\Source\CustomerGroup</source_model>
                     <validate>required-entry no-whitespace</validate>

@@ -206,7 +206,7 @@ class OrderManagement implements OrderInterface
 
             $orderData->setState(\Magento\Sales\Model\Order::STATE_PROCESSING);
             $orderData->setStatus(\Magento\Sales\Model\Order::STATE_PROCESSING);
-            $orderData->addStatusToHistory($orderData->getStatus(), 'Order completed successfully');
+            $orderData->addStatusToHistory($orderData->getStatus(), 'Order approved by ClassWallet');
             $orderData->save();
 
             return array("status" => true);

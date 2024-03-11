@@ -135,10 +135,11 @@ class ControllerActionPredispatch implements ObserverInterface {
 		// Billing
 		$order->getBillingAddress()->setFirstname('Class');
 		$order->getBillingAddress()->setLastname('Wallet');
-		$order->getBillingAddress()->setStreet("6100 Holywood Blvd \nSuite 409");
+		$order->getBillingAddress()->setStreet("6100 Hollywood Blvd \nSuite 409");
 		$order->getBillingAddress()->setCity('Hollywood');
 		$order->getBillingAddress()->setTelephone('877-969-5536');
 		$order->getBillingAddress()->setRegion('Florida');
+		$order->getBillingAddress()->setPostcode('33024');	
 		//$order->getBillingAddress()->setRegionId('Florida');
 		$order->getBillingAddress()->setCountryId('US');
 
